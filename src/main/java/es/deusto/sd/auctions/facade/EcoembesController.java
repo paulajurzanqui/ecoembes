@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.deusto.sd.auctions.service.AuctionsService;
+import es.deusto.sd.auctions.service.EcoembesService;
 import es.deusto.sd.auctions.service.AuthService;
 import es.deusto.sd.auctions.service.CurrencyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,18 +30,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/auctions")
 @Tag(name = "Auctions Controller", description = "Operations related to categories, articles and bids")
-public class AuctionsController {
+public class EcoembesController {
 
-	private final AuctionsService auctionsService;
+	private final EcoembesService ecoembesService;
 	private final AuthService authService;
 	private final CurrencyService currencyService;
 
-	public AuctionsController(AuctionsService auctionsService, AuthService authService, CurrencyService currencyService) {
-		this.auctionsService = auctionsService;
+	public EcoembesController(EcoembesService ecoembesService, AuthService authService, CurrencyService currencyService) {
+		this.ecoembesService = ecoembesService;
 		this.authService = authService;
 		this.currencyService = currencyService;
 	}
-
+/*
 	// GET all categories
 	@Operation(
 		summary = "Get all categories",
@@ -55,7 +55,7 @@ public class AuctionsController {
 	@GetMapping("/categories")
 	public ResponseEntity<List<CategoryDTO>> getAllCategories() {
 		try {
-			List<Category> categories = auctionsService.getCategories();
+			List<Category> categories = ecoembesService.getCategories();
 			
 			if (categories.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -90,7 +90,7 @@ public class AuctionsController {
 			@Parameter(name = "currency", description = "Currency", required = true, example = "GBP")
 			@RequestParam("currency") String currentCurrency) {
 		try {
-			List<Contenedor> articles = auctionsService.getArticlesByCategoryName(category);
+			List<Contenedor> articles = ecoembesService.getArticlesByCategoryName(category);
 						
 			if (articles.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -132,7 +132,7 @@ public class AuctionsController {
 			@Parameter(name = "currency", description = "Currency", required = true, example = "EUR")
 			@RequestParam("currency") String currentCurrency) {
 		try {
-			Contenedor article = auctionsService.getArticleById(id);			
+			Contenedor article = ecoembesService.getArticleById(id);
 			
 			if (article != null) {				
 				Optional<Float> exchangeRate = currencyService.getExchangeRate(currentCurrency);
@@ -193,7 +193,7 @@ public class AuctionsController {
 				price /= exchangeRate.get(); // Inverting the exchange rate
 			}
 			
-	        auctionsService.makeBid(user, id, price);
+	        ecoembesService.makeBid(user, id, price);
 	        
 	        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	    } catch (Exception e) {
@@ -225,4 +225,6 @@ public class AuctionsController {
 				              article.getOwner().getNickname(),
 				              currency);
 	}
+
+ */
 }
