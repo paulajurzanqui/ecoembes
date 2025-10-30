@@ -11,17 +11,12 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import es.deusto.sd.auctions.entity.Article;
-import es.deusto.sd.auctions.entity.Bid;
-import es.deusto.sd.auctions.entity.Category;
-import es.deusto.sd.auctions.entity.User;
-
 @Service
 public class AuctionsService {
 
 	// Simulating category and article repositories
 	private static Map<String, Category> categoryRepository = new HashMap<>();
-	private static Map<Long, Article> articleRepository = new HashMap<>();
+	private static Map<Long, Contenedor> articleRepository = new HashMap<>();
 
 	// Get all categories
 	public List<Category> getCategories() {
@@ -29,7 +24,7 @@ public class AuctionsService {
 	}
 
 	// Get articles of a specific category
-	public List<Article> getArticlesByCategoryName(String categoryName) {
+	public List<Contenedor> getArticlesByCategoryName(String categoryName) {
 		Category category = categoryRepository.get(categoryName);
 
 		if (category == null) {
@@ -40,14 +35,14 @@ public class AuctionsService {
 	}
 	
 	// Get article by id
-	public Article getArticleById(long articleId) {
+	public Contenedor getArticleById(long articleId) {
 		return articleRepository.get(articleId);
 	}
 
 	// Make a bid on an article
 	public void makeBid(User user, long articleId, float amount) {
 		// Retrieve the article by ID
-		Article article = articleRepository.get(articleId);
+		Contenedor article = articleRepository.get(articleId);
 
 		if (article == null) {
 			throw new RuntimeException("Article not found");
@@ -70,7 +65,7 @@ public class AuctionsService {
 	}
 	
 	// Method to add a new article
-	public void addArticle(Article article) {
+	public void addArticle(Contenedor article) {
 		if (article != null) {
 			articleRepository.put(article.getId(), article);
 		}

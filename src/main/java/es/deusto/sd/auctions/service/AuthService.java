@@ -7,8 +7,6 @@ package es.deusto.sd.auctions.service;
 
 import org.springframework.stereotype.Service;
 
-import es.deusto.sd.auctions.entity.User;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

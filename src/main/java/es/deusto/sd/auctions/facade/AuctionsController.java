@@ -19,11 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.deusto.sd.auctions.dto.ArticleDTO;
-import es.deusto.sd.auctions.dto.CategoryDTO;
-import es.deusto.sd.auctions.entity.Article;
-import es.deusto.sd.auctions.entity.Category;
-import es.deusto.sd.auctions.entity.User;
 import es.deusto.sd.auctions.service.AuctionsService;
 import es.deusto.sd.auctions.service.AuthService;
 import es.deusto.sd.auctions.service.CurrencyService;
@@ -95,7 +90,7 @@ public class AuctionsController {
 			@Parameter(name = "currency", description = "Currency", required = true, example = "GBP")
 			@RequestParam("currency") String currentCurrency) {
 		try {
-			List<Article> articles = auctionsService.getArticlesByCategoryName(category);
+			List<Contenedor> articles = auctionsService.getArticlesByCategoryName(category);
 						
 			if (articles.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -137,7 +132,7 @@ public class AuctionsController {
 			@Parameter(name = "currency", description = "Currency", required = true, example = "EUR")
 			@RequestParam("currency") String currentCurrency) {
 		try {
-			Article article = auctionsService.getArticleById(id);			
+			Contenedor article = auctionsService.getArticleById(id);			
 			
 			if (article != null) {				
 				Optional<Float> exchangeRate = currencyService.getExchangeRate(currentCurrency);
@@ -219,7 +214,7 @@ public class AuctionsController {
 	}
 	
 	// Converts an Article to an ArticleDTO
-	private ArticleDTO articleToDTO(Article article, float exchangeRate, String currency) {
+	private ArticleDTO articleToDTO(Contenedor article, float exchangeRate, String currency) {
 		return new ArticleDTO(article.getId(), 
 				              article.getTitle(), 
 				              article.getInitialPrice() * exchangeRate,

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.deusto.sd.auctions.dto.CredentialsDTO;
 import es.deusto.sd.auctions.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,10 +26,10 @@ public class AuthController {
 
     private AuthService authService;
     
-	public AuthController(AuthService authService) {
+	/*public AuthController(AuthService authService) {
 		this.authService = authService;
 	}
-    
+
     // Login endpoint
     @Operation(
         summary = "Login to the system",
@@ -51,7 +50,7 @@ public class AuthController {
     	} else {
     		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     	}
-    }
+    }*/
 
     // Logout endpoint
     @Operation(
@@ -74,4 +73,5 @@ public class AuthController {
         	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }        
     }
+
 }
