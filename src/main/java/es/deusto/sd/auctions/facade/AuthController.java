@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/auth")
 @Tag(name = "Authorization Controller", description = "Login and logout operations")
 public class AuthController {
-
+/*
     private AuthService authService;
     
 	/*public AuthController(AuthService authService) {
@@ -50,8 +50,7 @@ public class AuthController {
     	} else {
     		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     	}
-    }*/
-
+    }
     // Logout endpoint
     @Operation(
         summary = "Logout from the system",
@@ -72,6 +71,6 @@ public class AuthController {
         } else {
         	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }        
-    }
+    }*/
 
 }

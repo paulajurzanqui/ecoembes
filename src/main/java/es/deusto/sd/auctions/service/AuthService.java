@@ -14,7 +14,7 @@ import java.util.Optional;
 @Service
 public class AuthService {
 
-    // Simulating a user repository
+  /*  // Simulating a user repository
     private static Map<String, User> userRepository = new HashMap<>();
     
     // Storage to keep the session of the users that are logged in
@@ -65,5 +65,5 @@ public class AuthService {
     // Synchronized method to guarantee unique token generation
     private static synchronized String generateToken() {
         return Long.toHexString(System.currentTimeMillis());
-    }
+    }*/
 }
