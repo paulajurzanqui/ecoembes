@@ -9,10 +9,9 @@ public class Contenedor {
     private long id;
     private double latitud, longitud;
     private HashSet<Estado> estado_en_fechas;
+    final LocalTime HORA_ACTUALIZACION = LocalTime.of(3, 00);
 
     public Contenedor(long id, double latitud, double longitud) {
-        final LocalTime HORA_ACTUALIZACION = LocalTime.of(3, 00);
-
         this.id = id;
         this.latitud = latitud;
         this.longitud = longitud;
