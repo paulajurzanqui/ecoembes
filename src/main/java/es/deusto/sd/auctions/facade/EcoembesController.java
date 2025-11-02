@@ -1,23 +1,19 @@
-/**
- * This code is based on solutions provided by ChatGPT 4o and 
- * adapted using GitHub Copilot. It has been thoroughly reviewed 
- * and validated to ensure correctness and that it is free of errors.
- */
 package es.deusto.sd.auctions.facade;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
+import es.deusto.sd.auctions.dto.ContenedorDTO;
+import es.deusto.sd.auctions.dto.EstadoDTO;
+import es.deusto.sd.auctions.entity.Estado;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import es.deusto.sd.auctions.service.EcoembesService;
 import es.deusto.sd.auctions.service.AuthService;
@@ -27,8 +23,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+
+//TODO
+//Hay que cambiar el /auctions y el blique entero
 @RestController
-@RequestMapping("/auctions")
+@RequestMapping("/ecoembes")
 @Tag(name = "Auctions Controller", description = "Operations related to categories, articles and bids")
 public class EcoembesController {
 
@@ -41,190 +40,133 @@ public class EcoembesController {
 		this.authService = authService;
 		this.currencyService = currencyService;
 	}
-/*
-	// GET all categories
-	@Operation(
-		summary = "Get all categories",
-		description = "Returns a list of all available categories",
-		responses = {
-			@ApiResponse(responseCode = "200", description = "OK: List of categories retrieved successfully"),
-			@ApiResponse(responseCode = "204", description = "No Content: No Categories found"),
-			@ApiResponse(responseCode = "500", description = "Internal server error")
-		}
-	)
-	@GetMapping("/categories")
-	public ResponseEntity<List<CategoryDTO>> getAllCategories() {
-		try {
-			List<Category> categories = ecoembesService.getCategories();
-			
-			if (categories.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
 
-			List<CategoryDTO> dtos = new ArrayList<>();
-			categories.forEach(category -> dtos.add(categoryToDTO(category)));
-			
-			return new ResponseEntity<>(dtos, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	// GET articles by category name
-	@Operation(
-		summary = "Get articles by category name",
-		description = "Returns a list of all articles for a given category",
-		responses = {
-			@ApiResponse(responseCode = "200", description = "OK: List of articles retrieved successfully"),
-			@ApiResponse(responseCode = "204", description = "No Content: Category has no articles"),
-			@ApiResponse(responseCode = "400", description = "Bad Request: Currency not supported"),
-			@ApiResponse(responseCode = "404", description = "Not Found: Category not found"),
-			@ApiResponse(responseCode = "500", description = "Internal server error")
-		}
-	)
-	 
-	@GetMapping("/categories/{categoryName}/articles")
-	public ResponseEntity<List<ArticleDTO>> getArticlesByCategory(
-			@Parameter(name = "categoryName", description = "Name of the category", required = true, example = "Electronics")
-			@PathVariable("categoryName") String category,
-			@Parameter(name = "currency", description = "Currency", required = true, example = "GBP")
-			@RequestParam("currency") String currentCurrency) {
-		try {
-			List<Contenedor> articles = ecoembesService.getArticlesByCategoryName(category);
-						
-			if (articles.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
-
-			Optional<Float> exchangeRate = currencyService.getExchangeRate(currentCurrency);
-			
-			if (!exchangeRate.isPresent()) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    //Get estado de los contenedores por entre fechas
+    @Operation(
+            summary = "Get estado de los contenedores entre unas fechas.",
+            description = "Devuelve todos los estados entre unas fechas ordenados cronológicamente",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK: lista de los estados ordenados devuleto exitosamente"),
+                    @ApiResponse(responseCode = "204", description = "No Content: Contenedor no encontrado"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
             }
-			
-			List<ArticleDTO> dtos = new ArrayList<>();
-			articles.forEach(article -> dtos.add(articleToDTO(article, exchangeRate.get(), currentCurrency)));
-			
-			return new ResponseEntity<>(dtos, HttpStatus.OK);
-		} catch (RuntimeException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-	
-	// GET details of an article by ID
-	@Operation(
-		summary = "Get the details of an article by its ID",
-		description = "Returns the details of the article with the specified ID",
-		responses = {
-			@ApiResponse(responseCode = "200", description = "OK: Article details retrieved successfully"),
-			@ApiResponse(responseCode = "400", description = "Bad Request: Currency not supported"),
-			@ApiResponse(responseCode = "404", description = "Not Found: Article not found"),
-			@ApiResponse(responseCode = "500", description = "Internal server error")
-		}
-	)
-	 
-	@GetMapping("/articles/{articleId}/details")
-	public ResponseEntity<ArticleDTO> getArticleDetails(
-			@Parameter(name = "articleId", description = "Id of the article", required = true, example = "1")
-			@PathVariable("articleId") long id,
-			@Parameter(name = "currency", description = "Currency", required = true, example = "EUR")
-			@RequestParam("currency") String currentCurrency) {
-		try {
-			Contenedor article = ecoembesService.getArticleById(id);
-			
-			if (article != null) {				
-				Optional<Float> exchangeRate = currencyService.getExchangeRate(currentCurrency);
-				
-				if (!exchangeRate.isPresent()) {
-                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    )
+    @GetMapping("/contenedores/{id_contenedor}/estado/{fecha_inicio}/{fecha_fin}")
+    public ResponseEntity<List<EstadoDTO>> get_estado_fechas(
+            @Parameter(name = "id_contenedor", description = "id del contenedor referido", required = true, example = "00001")
+            @PathVariable("id_contenedor") String contenedor,
+            @Parameter(name = "fecha_inicio", description = "fecha de inicio de los estados", required = true, example = "01/01/2025")
+            @PathVariable("fecha_inicio") String fecha_inicio,
+            @Parameter(name = "fecha_fin", description = "fecha de fin de los estados", required = true, example = "01/01/2025")
+            @PathVariable("fecha_fin") String fecha_fin){
+            try {
+                String decoded_id_contenedor = URLDecoder.decode(contenedor, StandardCharsets.UTF_8);
+                long id = Long.parseLong(decoded_id_contenedor);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+                String decoded_fecha_inicio = URLDecoder.decode(fecha_inicio, StandardCharsets.UTF_8);
+                Date fecha_inicio_format = sdf.parse(decoded_fecha_inicio);
+
+                String decoded_fecha_fin = URLDecoder.decode(fecha_fin, StandardCharsets.UTF_8);
+                Date fecha_fin_format = sdf.parse(decoded_fecha_fin);
+
+                List<Estado.tipo> estados =ecoembesService.consulta_entre_fechas
+                        (ecoembesService.getContenedores().get(id), fecha_inicio_format, fecha_fin_format);
+
+                if (estados.isEmpty()) {
+                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
                 }
-				
-				ArticleDTO dto = articleToDTO(article, exchangeRate.get(), currentCurrency);
-				
-				return new ResponseEntity<>(dto, HttpStatus.OK);
-			} else {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			}
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
 
-	// POST to make a bid on an article
-	@Operation(
-	    summary = "Make a bid on an article",
-	    description = "Allows a user to make a bid on a specified article within a category",
-	    responses = {
-	        @ApiResponse(responseCode = "204", description = "No Content: Bid placed successfully"),
-			@ApiResponse(responseCode = "400", description = "Bad Request: Currency not supported"),
-	        @ApiResponse(responseCode = "401", description = "Unauthorized: User not authenticated"),
-	        @ApiResponse(responseCode = "404", description = "Not Found: Article not found"),
-	        @ApiResponse(responseCode = "409", description = "Conflict: Bid amount must be greater than the current price"),
-	        @ApiResponse(responseCode = "500", description = "Internal server error")
-	    }
-	)		
-	@PostMapping("/articles/{articleId}/bid")
-	public ResponseEntity<Void> makeBid(
-			@Parameter(name = "articleId", description = "ID of the article to bid on", required = true, example = "1")		
-			@PathVariable("articleId") long id,
-			@Parameter(name = "amount", description = "Bid amount", required = true, example = "1001")
-    		@RequestParam("amount") float price,
-    		@Parameter(name = "currency", description = "Currency", required = true, example = "EUR")
-			@RequestParam("currency") String currentCurrency,
-			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Authorization token in plain text", required = true)
-    		@RequestBody String token) { 
-	    try {	    	
-	    	User user = authService.getUserByToken(token);
-	    	
-	    	if (user == null) {
-	    		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-	    	}
-	    	
-			Optional<Float> exchangeRate = currencyService.getExchangeRate(currentCurrency);
-			
-			if (!exchangeRate.isPresent()) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                List<EstadoDTO> dtos = new ArrayList<>();
+                estados.forEach(estado -> {dtos.add(new EstadoDTO(estado.toString()));});
+
+                return new ResponseEntity<>(dtos, HttpStatus.OK);
+            } catch (RuntimeException e){
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } catch (Exception e){
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
-	    	
-			// If the currency is not EUR, convert the amount to EUR
-			if (!currentCurrency.equals("EUR")) {			    
-				price /= exchangeRate.get(); // Inverting the exchange rate
-			}
-			
-	        ecoembesService.makeBid(user, id, price);
-	        
-	        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	    } catch (Exception e) {
-	        switch (e.getMessage()) {
-	            case "Article not found":
-	                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	            case "Bid amount must be greater than the current price":
-	                return new ResponseEntity<>(HttpStatus.CONFLICT);
-	            default:
-	                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-	        }
-	    }
-	}
+    }
 
-	// Converts a Category to a CategoryDTO
-	private CategoryDTO categoryToDTO(Category category) {
-		return new CategoryDTO(category.getName());
-	}
-	
-	// Converts an Article to an ArticleDTO
-	private ArticleDTO articleToDTO(Contenedor article, float exchangeRate, String currency) {
-		return new ArticleDTO(article.getId(), 
-				              article.getTitle(), 
-				              article.getInitialPrice() * exchangeRate,
-				              article.getCurrentPrice() * exchangeRate,
-				              article.getBids().size(),
-				              article.getAuctionEnd(),
-				              article.getCategory().getName(), 
-				              article.getOwner().getNickname(),
-				              currency);
-	}
+    //Get estado de los contenedores en una zona
+    @Operation(
+            summary = "Get estado de los contenedores en una zona determinada",
+            description = "Devuelve el estado de los contenedores en una zona determinada",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK: lista de los estados devuleto exitosamente"),
+                    @ApiResponse(responseCode = "204", description = "No Content: Zona inexistente"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
+            })
+    @GetMapping("/contenedores/estado/{latitud}/{longitud}/{radio}")
+    public ResponseEntity<List<ContenedorDTO>> get_contenedores_zona(
+            @Parameter(name = "latitud", description = "latitud de la posición en el mapa", required = true, example = "00.00")
+            @PathVariable("latitud") double latitud,
+            @Parameter(name = "longitud", description = "longitud de la posición en el mapa", required = true, example = "00.00")
+            @PathVariable("longitud") double longitud,
+            @Parameter(name = "radio", description = "radio que delimita la zona de búsqueda", required = true, example = "0.00")
+            @PathVariable("radio") double radio){
+        try {
+            //TODO
+            return null;
+        } catch (RuntimeException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
- */
+    //Get capacidad de una planta en una fecha dada
+    @Operation(
+            summary = "Get estado de los contenedores en una zona determinada",
+            description = "Devuelve el estado de los contenedores en una zona determinada",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK: lista de los estados devuleto exitosamente"),
+                    @ApiResponse(responseCode = "204", description = "No Content: Zona inexistente"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
+            }
+    )
+    @GetMapping("/plantas/{id_planta}/{fecha}")
+    public ResponseEntity<List<ContenedorDTO>> get_capacidad_planta_fecha(
+            @Parameter(name = "id_planta", description = "id de la planta", required = true, example = "00001")
+            @PathVariable("id_planta") String planta,
+            @Parameter(name = "fecha", description = "fecha de la que quiero la capacidad ", required = true, example = "01/01/2025")
+            @PathVariable("fecha") String fecha){
+        try {
+            //TODO
+            return null;
+        } catch (RuntimeException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //Put asigna contenedores a plantas
+    @Operation(
+            summary = "Asigna a una planta contenedores sin superar su capacidad",
+            description = "Asigna a una planta contenedores que pueden ir para no superar la capadicad total de esta",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "No Content: Contenedores asignados correctamente"),
+                    @ApiResponse(responseCode = "400", description = "Bad Request"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized: No puedes actualizar datos"),
+                    @ApiResponse(responseCode = "404", description = "Not Found: Planta no encontrada"),
+                    @ApiResponse(responseCode = "409", description = "Conflict: La planta ya está llena"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
+            }
+        )
+        @PostMapping("/plantas//{id_planta}/asignar")
+        public ResponseEntity<Object> put_contenedores_plantas(
+                @Parameter(name = "id_planta", description = "id de la planta a la que se le asigna", required = true, example = "00001")
+                @PathVariable("id_planta") double id){
+            try {
+                //TODO
+                return null;
+            } catch (RuntimeException e){
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } catch (Exception e){
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+    }
+
 }

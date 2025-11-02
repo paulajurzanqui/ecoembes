@@ -8,7 +8,7 @@ public class Estado {
     private Date fecha;
     private double cantidad; //En toneladas
 
-    protected enum tipo{
+    public enum tipo{
         Verde, //0% - 80%
         Naranja, //80%-100%
         Rojo; //100%

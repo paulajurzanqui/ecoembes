@@ -3,19 +3,20 @@ package es.deusto.sd.auctions.entity;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.TreeMap;
 
 public class Contenedor {
     private long id;
     private double latitud, longitud;
-    private HashSet<Estado> estado_en_fechas;
-    final LocalTime HORA_ACTUALIZACION = LocalTime.of(3, 00);
+    private boolean asignado;
+    final double CANATIDAD_MAXIMA = 1.00;
 
     public Contenedor(long id, double latitud, double longitud) {
         this.id = id;
         this.latitud = latitud;
         this.longitud = longitud;
-        estado_en_fechas = new HashSet<>();
+        this.asignado = false;
     }
 
     public long getId() {
@@ -42,6 +43,14 @@ public class Contenedor {
         this.longitud = longitud;
     }
 
+    public boolean isAsignado() {
+        return asignado;
+    }
+
+    public void setAsignado(boolean asignado) {
+        this.asignado = asignado;
+    }
+
     @Override
     public String toString() {
         return "Contenedor{" +
@@ -51,18 +60,15 @@ public class Contenedor {
                 '}';
     }
 
-    public TreeMap<Date, Estado.tipo> consulta_estado_fechas(Date inicio, Date fin){
-        /**
-         * Este metodo me devuleve un Treemap que tiene como key una fecha, y con esa fecha guardado un estado, que hace referencia a lo lleno
-         * que estaba el contenedor en dicha fecha.
-         * Como parámetro recive dos fechas de tipo java.Util.Date. El primer parámetro es la fecha de inicio y el segundo la final.
-        */
-        TreeMap<Date, Estado.tipo> result = new TreeMap<>();
-        for (Estado estado : this.estado_en_fechas){
-            if(result.containsKey(estado.getFecha())) continue;
-            if(estado.getFecha().after(inicio) && estado.getFecha().before(fin)) result.put(estado.getFecha(), estado.getLlenado());
-        }
-        return result;
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Contenedor that = (Contenedor) o;
+        return id == that.id;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }
