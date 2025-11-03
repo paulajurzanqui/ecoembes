@@ -10,7 +10,7 @@ import java.util.*;
 @Service
 public class EcoembesService {
     private HashMap<Long, Contenedor> contenedores;
-    private HashMap<Long, TreeMap<Date, Estado.tipo>> estados; //long = id de un contenedor
+    private HashMap<Long, TreeMap<Date, Estado>> estados; //long = id de un contenedor
     final LocalTime HORA_ACTUALIZACION = LocalTime.of(3, 00);
 
     public HashMap<Long, Contenedor> getContenedores() {
@@ -21,11 +21,11 @@ public class EcoembesService {
         this.contenedores = contenedores;
     }
 
-    public HashMap<Long, TreeMap<Date, Estado.tipo>> getEstados() {
+    public HashMap<Long, TreeMap<Date, Estado>> getEstados() {
         return estados;
     }
 
-    public void setEstados(HashMap<Long, TreeMap<Date, Estado.tipo>> estados) {
+    public void setEstados(HashMap<Long, TreeMap<Date, Estado>> estados) {
         this.estados = estados;
     }
 
@@ -37,26 +37,46 @@ public class EcoembesService {
         contenedores.put(00001L, new Contenedor(00001L, 00.00, 00.00));
         estados = new HashMap<>();
         estados.put(00001L, new TreeMap<>());
-        estados.get(00001L).put(new Date(2025, 01, 01),Estado.tipo.Verde);
-        estados.get(00001L).put(new Date(2025, 01, 02),Estado.tipo.Verde);
-        estados.get(00001L).put(new Date(2025, 01, 03),Estado.tipo.Naranja);
-        estados.get(00001L).put(new Date(2025, 01, 04),Estado.tipo.Rojo);
+        estados.get(00001L).put(new Date(125, 01, 01),Estado.tipo.Verde);
+        estados.get(00001L).put(new Date(125, 01, 02),Estado.tipo.Verde);
+        estados.get(00001L).put(new Date(125, 01, 03),Estado.tipo.Naranja);
+        estados.get(00001L).put(new Date(125, 01, 04),Estado.tipo.Rojo);
+    }
+
+    public EcoembesService() {
+        //this.contenedores = contenedores;
+        //this.estados = estados;
+
+        contenedores = new HashMap<>();
+        contenedores.put(00001L, new Contenedor(00001L, 00.00, 00.00));
+        estados = new HashMap<>();
+        estados.put(00001L, new TreeMap<>());
+        estados.get(00001L).put(new Date(125, 0, 01),new Estado(new Date(125, 0, 01), 00.10));
+        estados.get(00001L).put(new Date(125, 0, 02),new Estado(new Date(125, 0, 02), 00.12));
+        estados.get(00001L).put(new Date(125, 0, 03),new Estado(new Date(125, 0, 03), 00.86));
+        estados.get(00001L).put(new Date(125, 0, 04),new Estado(new Date(125, 0, 01), 01));
     }
 
     //Get estado de los contenedores entre fechas
-    public List<Estado.tipo> consulta_entre_fechas(Contenedor contenedor, Date inicio, Date fin){
+    public List<Estado> consulta_entre_fechas(Contenedor contenedor, Date inicio, Date fin){
         /**
          * Este metodo devolverá la lista con un treemap de fecha-estado de un contenedor en concreto.
          */
         long id = contenedor.getId();
-        TreeMap<Date, Estado.tipo> estados_contenedor = estados.get(id);
-        TreeMap<Date, Estado.tipo> result = new TreeMap<>();
+        TreeMap<Date, Estado> estados_contenedor = estados.get(id);
+        TreeMap<Date, Estado> result = new TreeMap<>();
+
+        System.out.println("inicio: " + inicio.toString());
+        System.out.println("fin: "+ fin.toString());
 
 
         for(Date fecha : estados_contenedor.keySet()){
-            if(fecha.before(fin) && fecha.after(inicio)) result.put(fecha, estados_contenedor.get(fecha));
+            System.out.println(fecha.toString());
+            if(!fecha.after(fin) && !fecha.before(inicio)){
+                result.put(fecha, estados_contenedor.get(fecha));
+            }
         }
 
-        return new ArrayList<Estado.tipo>(result.values());
+        return new ArrayList<Estado>(result.values());
     }
 }

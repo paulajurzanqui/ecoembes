@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import es.deusto.sd.auctions.dto.ContenedorDTO;
 import es.deusto.sd.auctions.dto.EstadoDTO;
@@ -51,38 +50,37 @@ public class EcoembesController {
                     @ApiResponse(responseCode = "500", description = "Internal server error")
             }
     )
-    @GetMapping("/contenedores/{id_contenedor}/estado/{fecha_inicio}/{fecha_fin}")
+    @GetMapping("/contenedores/estado/{id_contenedor}/{fecha_inicio}/{fecha_fin}")
     public ResponseEntity<List<EstadoDTO>> get_estado_fechas(
             @Parameter(name = "id_contenedor", description = "id del contenedor referido", required = true, example = "00001")
             @PathVariable("id_contenedor") String contenedor,
-            @Parameter(name = "fecha_inicio", description = "fecha de inicio de los estados", required = true, example = "01/01/2025")
+            @Parameter(name = "fecha_inicio", description = "fecha de inicio de los estados", required = true, example = "01-01-2025")
             @PathVariable("fecha_inicio") String fecha_inicio,
-            @Parameter(name = "fecha_fin", description = "fecha de fin de los estados", required = true, example = "01/01/2025")
+            @Parameter(name = "fecha_fin", description = "fecha de fin de los estados", required = true, example = "04-01-2025")
             @PathVariable("fecha_fin") String fecha_fin){
             try {
                 String decoded_id_contenedor = URLDecoder.decode(contenedor, StandardCharsets.UTF_8);
                 long id = Long.parseLong(decoded_id_contenedor);
 
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+                sdf.setLenient(false);
 
-                String decoded_fecha_inicio = URLDecoder.decode(fecha_inicio, StandardCharsets.UTF_8);
-                Date fecha_inicio_format = sdf.parse(decoded_fecha_inicio);
+                Date fecha_inicio_format = sdf.parse(fecha_inicio);
 
-                String decoded_fecha_fin = URLDecoder.decode(fecha_fin, StandardCharsets.UTF_8);
-                Date fecha_fin_format = sdf.parse(decoded_fecha_fin);
+                Date fecha_fin_format = sdf.parse(fecha_fin);
 
-                List<Estado.tipo> estados =ecoembesService.consulta_entre_fechas
+                List<Estado> estados =ecoembesService.consulta_entre_fechas
                         (ecoembesService.getContenedores().get(id), fecha_inicio_format, fecha_fin_format);
-
                 if (estados.isEmpty()) {
                     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
                 }
 
                 List<EstadoDTO> dtos = new ArrayList<>();
-                estados.forEach(estado -> {dtos.add(new EstadoDTO(estado.toString()));});
+                estados.forEach(estado -> {dtos.add(new EstadoDTO(estado.getLlenado().toString(), estado.getFecha()));});
 
                 return new ResponseEntity<>(dtos, HttpStatus.OK);
             } catch (RuntimeException e){
+                System.out.println(e);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             } catch (Exception e){
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -98,7 +96,7 @@ public class EcoembesController {
                     @ApiResponse(responseCode = "204", description = "No Content: Zona inexistente"),
                     @ApiResponse(responseCode = "500", description = "Internal server error")
             })
-    @GetMapping("/contenedores/estado/{latitud}/{longitud}/{radio}")
+    @GetMapping("/contenedores/zona/{latitud}/{longitud}/{radio}")
     public ResponseEntity<List<ContenedorDTO>> get_contenedores_zona(
             @Parameter(name = "latitud", description = "latitud de la posición en el mapa", required = true, example = "00.00")
             @PathVariable("latitud") double latitud,
@@ -155,7 +153,7 @@ public class EcoembesController {
                     @ApiResponse(responseCode = "500", description = "Internal server error")
             }
         )
-        @PostMapping("/plantas//{id_planta}/asignar")
+        @PostMapping("/plantas/{id_planta}/asignar")
         public ResponseEntity<Object> put_contenedores_plantas(
                 @Parameter(name = "id_planta", description = "id de la planta a la que se le asigna", required = true, example = "00001")
                 @PathVariable("id_planta") double id){

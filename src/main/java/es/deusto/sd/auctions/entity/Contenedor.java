@@ -10,7 +10,6 @@ public class Contenedor {
     private long id;
     private double latitud, longitud;
     private boolean asignado;
-    final double CANATIDAD_MAXIMA = 1.00;
 
     public Contenedor(long id, double latitud, double longitud) {
         this.id = id;

@@ -14,10 +14,14 @@ public class Estado {
         Rojo; //100%
     }
 
-    public Estado(tipo llenado, Date fecha, double cantidad) {
+    public Estado( Date fecha, double cantidad) {
         this.llenado = llenado;
         this.fecha = fecha;
         this.cantidad = cantidad;
+
+        if((0 <= cantidad) && (cantidad <= 0.80)) llenado = tipo.Verde;
+        else if((cantidad >= 0.81) && (cantidad <= 0.89)) llenado = tipo.Naranja;
+        else llenado = tipo.Rojo;
     }
 
     public tipo getLlenado() {
