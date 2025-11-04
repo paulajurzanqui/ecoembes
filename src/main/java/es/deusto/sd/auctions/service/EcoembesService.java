@@ -75,6 +75,9 @@ public class EcoembesService {
 
     //Get contenedores en un área determinada
     public List<Contenedor> consulta_zona(double latitud, double longitud, double radio){
+        /**
+         * Este metodo devolverá una lista con los contenedores que entran en la zona descrita
+         */
         ArrayList<Contenedor> result = new ArrayList<>();
 
         for(long id : contenedores.keySet()){
