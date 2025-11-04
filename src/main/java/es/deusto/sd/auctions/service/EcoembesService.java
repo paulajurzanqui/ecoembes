@@ -29,18 +29,9 @@ public class EcoembesService {
         this.estados = estados;
     }
 
-    public EcoembesService(HashMap<Long, Contenedor> contenedores, HashMap<Long, TreeMap<Date, Estado.tipo>> estados) {
-        //this.contenedores = contenedores;
-        //this.estados = estados;
-
-        contenedores = new HashMap<>();
-        contenedores.put(00001L, new Contenedor(00001L, 00.00, 00.00));
-        estados = new HashMap<>();
-        estados.put(00001L, new TreeMap<>());
-        estados.get(00001L).put(new Date(125, 01, 01),Estado.tipo.Verde);
-        estados.get(00001L).put(new Date(125, 01, 02),Estado.tipo.Verde);
-        estados.get(00001L).put(new Date(125, 01, 03),Estado.tipo.Naranja);
-        estados.get(00001L).put(new Date(125, 01, 04),Estado.tipo.Rojo);
+    public EcoembesService(HashMap<Long, Contenedor> contenedores, HashMap<Long, TreeMap<Date, Estado>> estados) {
+        this.contenedores = contenedores;
+        this.estados = estados;
     }
 
     public EcoembesService() {
@@ -49,6 +40,8 @@ public class EcoembesService {
 
         contenedores = new HashMap<>();
         contenedores.put(00001L, new Contenedor(00001L, 00.00, 00.00));
+        contenedores.put(00002L, new Contenedor(00001L, 10.00, 10.00));
+        contenedores.put(00003L, new Contenedor(00001L, 00.00, 10.00));
         estados = new HashMap<>();
         estados.put(00001L, new TreeMap<>());
         estados.get(00001L).put(new Date(125, 0, 01),new Estado(new Date(125, 0, 01), 00.10));
@@ -78,5 +71,19 @@ public class EcoembesService {
         }
 
         return new ArrayList<Estado>(result.values());
+    }
+
+    //Get contenedores en un área determinada
+    public List<Contenedor> consulta_zona(double latitud, double longitud, double radio){
+        ArrayList<Contenedor> result = new ArrayList<>();
+
+        for(long id : contenedores.keySet()){
+            Contenedor contenedor = contenedores.get(id);
+
+            //if(formula de haversine < radio) meteremos el contenedor en la lista
+
+        }
+
+        return null;
     }
 }
