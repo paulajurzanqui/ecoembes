@@ -46,7 +46,8 @@ public class EcoembesController {
             description = "Devuelve todos los estados entre unas fechas ordenados cronológicamente",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK: lista de los estados ordenados devuleto exitosamente"),
-                    @ApiResponse(responseCode = "204", description = "No Content: Contenedor no encontrado"),
+                    @ApiResponse(responseCode = "204", description = "No Content: Contenedor no encontrado || El contenedor no tiene estados"),
+                    @ApiResponse(responseCode = "404", description = "No existe ese contenedor"),
                     @ApiResponse(responseCode = "500", description = "Internal server error")
             }
     )
@@ -61,6 +62,8 @@ public class EcoembesController {
             try {
                 String decoded_id_contenedor = URLDecoder.decode(contenedor, StandardCharsets.UTF_8);
                 long id = Long.parseLong(decoded_id_contenedor);
+
+                if(ecoembesService.getContenedores().get(id) == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
                 SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
                 sdf.setLenient(false);
@@ -140,10 +143,11 @@ public class EcoembesController {
         }
     }
 
-    //Put asigna contenedores a plantas
+    //Post crea camiones que contienen los contenedores que irán a cada planta
+    //Esto hace que la variable del contenedor de si está asignado a las 3:00 cuando le solicitemos el estado la pondremos a false, para poder reasignarlo
     @Operation(
             summary = "Asigna a una planta contenedores sin superar su capacidad",
-            description = "Asigna a una planta contenedores que pueden ir para no superar la capadicad total de esta",
+            description = "Asigna a una planta contenedores que pueden ir para no superar la capadicad total de esta, creando de forma significativa un camión",
             responses = {
                     @ApiResponse(responseCode = "204", description = "No Content: Contenedores asignados correctamente"),
                     @ApiResponse(responseCode = "400", description = "Bad Request"),
@@ -151,20 +155,18 @@ public class EcoembesController {
                     @ApiResponse(responseCode = "404", description = "Not Found: Planta no encontrada"),
                     @ApiResponse(responseCode = "409", description = "Conflict: La planta ya está llena"),
                     @ApiResponse(responseCode = "500", description = "Internal server error")
-            }
-        )
-        @PostMapping("/plantas/{id_planta}/asignar")
-        public ResponseEntity<Object> put_contenedores_plantas(
-                @Parameter(name = "id_planta", description = "id de la planta a la que se le asigna", required = true, example = "00001")
-                @PathVariable("id_planta") double id){
-            try {
-                //TODO
-                return null;
-            } catch (RuntimeException e){
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            } catch (Exception e){
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            })
+    @PostMapping("/plantas/{id_planta}/asignar")
+    public ResponseEntity<Object> post_contenedores_plantas(
+            @Parameter(name = "id_planta", description = "id de la planta a la que se le asigna", required = true, example = "00001")
+            @PathVariable("id_planta") double id){
+        try {
+            //TODO
+            return null;
+        } catch (RuntimeException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-
 }
