@@ -1,21 +1,33 @@
 package es.deusto.sd.auctions.entity;
 
 import java.time.LocalTime;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Contenedor {
     private long id;
-    private double latitud, longitud;
-    private boolean asignado;
+    private HashMap<Date, Estado> estados;
+    private Estado ultimo;
 
-    public Contenedor(long id, double latitud, double longitud) {
+    public Contenedor(long id, HashMap<Date, Estado> estados) {
         this.id = id;
-        this.latitud = latitud;
-        this.longitud = longitud;
-        this.asignado = false;
+        this.estados = estados;
+        ultimo = null;
+    }
+
+    public Estado getUltimo() {
+        return ultimo;
+    }
+
+    public void setUltimo(Estado ultimo) {
+        this.ultimo = ultimo;
+    }
+
+    public HashMap<Date, Estado> getEstados() {
+        return estados;
+    }
+
+    public void setEstados(HashMap<Date, Estado> estados) {
+        this.estados = estados;
     }
 
     public long getId() {
@@ -26,36 +38,10 @@ public class Contenedor {
         this.id = id;
     }
 
-    public double getLatitud() {
-        return latitud;
-    }
-
-    public void setLatitud(double latitud) {
-        this.latitud = latitud;
-    }
-
-    public double getLongitud() {
-        return longitud;
-    }
-
-    public void setLongitud(double longitud) {
-        this.longitud = longitud;
-    }
-
-    public boolean isAsignado() {
-        return asignado;
-    }
-
-    public void setAsignado(boolean asignado) {
-        this.asignado = asignado;
-    }
-
     @Override
     public String toString() {
         return "Contenedor{" +
                 "id=" + id +
-                ", latitud=" + latitud +
-                ", longitud=" + longitud +
                 '}';
     }
 
@@ -69,5 +55,13 @@ public class Contenedor {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    public void anadir_estado(Estado estado){
+        /**
+         * Este metodo añade al contenedor un estado a su histórico además de actualizar el último
+         */
+        estados.put(estado.getFecha(), estado);
+        ultimo = estado;
     }
 }

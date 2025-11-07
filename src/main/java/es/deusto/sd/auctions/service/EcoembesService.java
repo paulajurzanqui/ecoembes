@@ -2,6 +2,7 @@ package es.deusto.sd.auctions.service;
 
 import es.deusto.sd.auctions.entity.Contenedor;
 import es.deusto.sd.auctions.entity.Estado;
+import es.deusto.sd.auctions.entity.PlantaDeReciclaje;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -10,8 +11,7 @@ import java.util.*;
 @Service
 public class EcoembesService {
     private HashMap<Long, Contenedor> contenedores;
-    private HashMap<Long, TreeMap<Date, Estado>> estados; //long = id de un contenedor
-    final LocalTime HORA_ACTUALIZACION = LocalTime.of(3, 00);
+    private HashMap<Long, PlantaDeReciclaje> plantas;
 
     public HashMap<Long, Contenedor> getContenedores() {
         return contenedores;
@@ -21,33 +21,43 @@ public class EcoembesService {
         this.contenedores = contenedores;
     }
 
-    public HashMap<Long, TreeMap<Date, Estado>> getEstados() {
-        return estados;
-    }
-
-    public void setEstados(HashMap<Long, TreeMap<Date, Estado>> estados) {
-        this.estados = estados;
-    }
-
-    public EcoembesService(HashMap<Long, Contenedor> contenedores, HashMap<Long, TreeMap<Date, Estado>> estados) {
+    public EcoembesService(HashMap<Long, Contenedor> contenedores) {
         this.contenedores = contenedores;
-        this.estados = estados;
+    }
+
+    public HashMap<Long, PlantaDeReciclaje> getPlantas() {
+        return plantas;
+    }
+
+    public void setPlantas(HashMap<Long, PlantaDeReciclaje> plantas) {
+        this.plantas = plantas;
     }
 
     public EcoembesService() {
         //this.contenedores = contenedores;
         //this.estados = estados;
+        HashMap<Date, Estado>estados = new HashMap<>();
+        estados.put(new Date(125, 0, 01),new Estado(new Date(125, 0, 01), 00.10));
+        estados.put(new Date(125, 0, 02),new Estado(new Date(125, 0, 02), 00.12));
+        estados.put(new Date(125, 0, 03),new Estado(new Date(125, 0, 03), 00.86));
+        estados.put(new Date(125, 0, 04),new Estado(new Date(125, 0, 04), 01));
 
         contenedores = new HashMap<>();
-        contenedores.put(00001L, new Contenedor(00001L, 00.00, 00.00));
-        contenedores.put(00002L, new Contenedor(00001L, 10.00, 10.00));
-        contenedores.put(00003L, new Contenedor(00001L, 00.00, 10.00));
-        estados = new HashMap<>();
-        estados.put(00001L, new TreeMap<>());
-        estados.get(00001L).put(new Date(125, 0, 01),new Estado(new Date(125, 0, 01), 00.10));
-        estados.get(00001L).put(new Date(125, 0, 02),new Estado(new Date(125, 0, 02), 00.12));
-        estados.get(00001L).put(new Date(125, 0, 03),new Estado(new Date(125, 0, 03), 00.86));
-        estados.get(00001L).put(new Date(125, 0, 04),new Estado(new Date(125, 0, 01), 01));
+        contenedores.put(00001L, new Contenedor(1L, estados));
+        contenedores.put(00002L, new Contenedor(2L, estados));
+        contenedores.put(00003L, new Contenedor(3L, estados));
+        contenedores.get(1L).anadir_estado(new Estado(new Date(125,0,05), 0.7));
+        contenedores.get(2L).anadir_estado(new Estado(new Date(125,0,05), 0.82));
+        contenedores.get(3L).anadir_estado(new Estado(new Date(125,0,05), 0.4));
+
+        plantas = new HashMap<>();
+        plantas.put(1L, new PlantaDeReciclaje(100,1L));
+        HashMap<Date, Double> historico = new HashMap<>();
+        historico.put(new Date(125, 00, 01), 99.00);
+        historico.put(new Date(125, 00, 02), 90.00);
+
+        plantas.get(1L).setHistorico(historico);
+        plantas.get(1L).actualizar_capacidad(89, new Date(125,00,03));
     }
 
     //Get estado de los contenedores entre fechas
@@ -55,8 +65,7 @@ public class EcoembesService {
         /**
          * Este metodo devolverá la lista con un treemap de fecha-estado de un contenedor en concreto.
          */
-        long id = contenedor.getId();
-        TreeMap<Date, Estado> estados_contenedor = estados.get(id);
+        HashMap<Date, Estado> estados_contenedor = contenedor.getEstados();
         TreeMap<Date, Estado> result = new TreeMap<>();
 
         System.out.println("inicio: " + inicio.toString());
@@ -73,20 +82,8 @@ public class EcoembesService {
         return new ArrayList<Estado>(result.values());
     }
 
-    //Get contenedores en un área determinada
-    public List<Contenedor> consulta_zona(double latitud, double longitud, double radio){
-        /**
-         * Este metodo devolverá una lista con los contenedores que entran en la zona descrita
-         */
-        ArrayList<Contenedor> result = new ArrayList<>();
-
-        for(long id : contenedores.keySet()){
-            Contenedor contenedor = contenedores.get(id);
-
-            //if(formula de haversine < radio) meteremos el contenedor en la lista
-
-        }
-
-        return null;
+    //Get estado de una planta en una fecha determinada
+    public double capacidad_planta_fecha(PlantaDeReciclaje planta, Date fecha){
+        return planta.getHistorico().get(fecha);
     }
 }

@@ -9,6 +9,7 @@ import java.util.List;
 
 import es.deusto.sd.auctions.dto.ContenedorDTO;
 import es.deusto.sd.auctions.dto.EstadoDTO;
+import es.deusto.sd.auctions.dto.PlantaDeRecilajeDTO;
 import es.deusto.sd.auctions.entity.Estado;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -79,7 +80,7 @@ public class EcoembesController {
                 }
 
                 List<EstadoDTO> dtos = new ArrayList<>();
-                estados.forEach(estado -> {dtos.add(new EstadoDTO(estado.getLlenado().toString(), estado.getFecha()));});
+                estados.forEach(estado -> {dtos.add(new EstadoDTO(estado.getCantidad(), estado.getFecha()));});
 
                 return new ResponseEntity<>(dtos, HttpStatus.OK);
             } catch (RuntimeException e){
@@ -90,32 +91,62 @@ public class EcoembesController {
             }
     }
 
-    //Get estado de los contenedores en una zona
+    //Get contenedores
     @Operation(
-            summary = "Get estado de los contenedores en una zona determinada",
-            description = "Devuelve el estado de los contenedores en una zona determinada",
+            summary = "Get contendores.",
+            description = "Devuelve todos los contenedores con su estado actual",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "OK: lista de los estados devuleto exitosamente"),
-                    @ApiResponse(responseCode = "204", description = "No Content: Zona inexistente"),
+                    @ApiResponse(responseCode = "200", description = "OK: lista de los estados ordenados devuleto exitosamente"),
+                    @ApiResponse(responseCode = "204", description = "No hay contenedores"),
+                    @ApiResponse(responseCode = "404", description = "No hay contenedores, o están mal creados"),
                     @ApiResponse(responseCode = "500", description = "Internal server error")
-            })
-    @GetMapping("/contenedores/zona/{latitud}/{longitud}/{radio}")
-    public ResponseEntity<List<ContenedorDTO>> get_contenedores_zona(
-            @Parameter(name = "latitud", description = "latitud de la posición en el mapa", required = true, example = "00.00")
-            @PathVariable("latitud") double latitud,
-            @Parameter(name = "longitud", description = "longitud de la posición en el mapa", required = true, example = "00.00")
-            @PathVariable("longitud") double longitud,
-            @Parameter(name = "radio", description = "radio que delimita la zona de búsqueda", required = true, example = "0.00")
-            @PathVariable("radio") double radio){
+            }
+    )
+    @GetMapping("/contenedores")
+    public ResponseEntity<List<ContenedorDTO>> get_contenedores(){
         try {
-            //TODO
-            return null;
+
+            List<ContenedorDTO> dtos = new ArrayList<>();
+
+            ecoembesService.getContenedores().values().forEach(contenedor -> dtos.add(new ContenedorDTO(contenedor.getId(),
+                    new EstadoDTO(contenedor.getUltimo().getCantidad(), contenedor.getUltimo().getFecha()))));
+
+            return new ResponseEntity<>(dtos, HttpStatus.OK);
         } catch (RuntimeException e){
+            System.out.println(e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    //Get plantas de reciclaje
+    @Operation(
+            summary = "Get todas las plantas de reciclaje",
+            description = "Devuelve todas las plantas de reciclaje con su capadidad actual",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK: lista de las plantas de reciclaje devuelta exitosamente"),
+                    @ApiResponse(responseCode = "204", description = "No Content: No hay plantas de reciclaje"),
+                    @ApiResponse(responseCode = "404", description = ""),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
+            }
+    )
+    @GetMapping("/pantas_de_reciclaje")
+    public ResponseEntity<List<PlantaDeRecilajeDTO>> get_plantas(){
+        try {
+            List<PlantaDeRecilajeDTO> dtos = new ArrayList<>();
+
+            ecoembesService.getPlantas().values().forEach(planta -> dtos.add(new PlantaDeRecilajeDTO(planta.getId(), planta.getCapacidad_actual())));
+
+            return new ResponseEntity<>(dtos, HttpStatus.OK);
+        } catch (RuntimeException e){
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     //Get capacidad de una planta en una fecha dada
     @Operation(
@@ -128,14 +159,21 @@ public class EcoembesController {
             }
     )
     @GetMapping("/plantas/{id_planta}/{fecha}")
-    public ResponseEntity<List<ContenedorDTO>> get_capacidad_planta_fecha(
+    public ResponseEntity<Double> get_capacidad_planta_fecha(
             @Parameter(name = "id_planta", description = "id de la planta", required = true, example = "00001")
             @PathVariable("id_planta") String planta,
-            @Parameter(name = "fecha", description = "fecha de la que quiero la capacidad ", required = true, example = "01/01/2025")
+            @Parameter(name = "fecha", description = "fecha de la que quiero la capacidad ", required = true, example = "01-01-2025")
             @PathVariable("fecha") String fecha){
         try {
-            //TODO
-            return null;
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            sdf.setLenient(false);
+            Date fecha_format = sdf.parse(fecha);
+
+
+            double capacidad = ecoembesService.capacidad_planta_fecha(ecoembesService.getPlantas().get(Long.parseLong(planta)), fecha_format);
+
+            return new ResponseEntity<>(capacidad, HttpStatus.OK);
         } catch (RuntimeException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e){
@@ -144,7 +182,6 @@ public class EcoembesController {
     }
 
     //Post crea camiones que contienen los contenedores que irán a cada planta
-    //Esto hace que la variable del contenedor de si está asignado a las 3:00 cuando le solicitemos el estado la pondremos a false, para poder reasignarlo
     @Operation(
             summary = "Asigna a una planta contenedores sin superar su capacidad",
             description = "Asigna a una planta contenedores que pueden ir para no superar la capadicad total de esta, creando de forma significativa un camión",
@@ -156,17 +193,9 @@ public class EcoembesController {
                     @ApiResponse(responseCode = "409", description = "Conflict: La planta ya está llena"),
                     @ApiResponse(responseCode = "500", description = "Internal server error")
             })
-    @PostMapping("/plantas/{id_planta}/asignar")
-    public ResponseEntity<Object> post_contenedores_plantas(
-            @Parameter(name = "id_planta", description = "id de la planta a la que se le asigna", required = true, example = "00001")
-            @PathVariable("id_planta") double id){
-        try {
-            //TODO
-            return null;
-        } catch (RuntimeException e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @PostMapping("")
+    public ResponseEntity<Object> post_contenedores_plantas(){
+        return null;
     }
+
 }

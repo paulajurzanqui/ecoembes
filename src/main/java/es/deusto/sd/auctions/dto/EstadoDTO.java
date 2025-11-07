@@ -1,24 +1,22 @@
 package es.deusto.sd.auctions.dto;
 
-import es.deusto.sd.auctions.entity.Estado;
-
 import java.util.Date;
 
 public class EstadoDTO {
-    private String Tipo;
+    private double cantidad;
     private Date fecha;
 
-    public EstadoDTO(String tipo, Date fecha) {
+    public EstadoDTO(Double cantidad, Date fecha) {
         this.fecha = fecha;
-        Tipo = tipo;
+        this.cantidad = cantidad;
     }
 
-    public String getTipo() {
-        return Tipo;
+    public double getCantidad() {
+        return cantidad;
     }
 
-    public void setTipo(String tipo) {
-        Tipo = tipo;
+    public void setCantidad(double cantidad) {
+        this.cantidad = cantidad;
     }
 
     public Date getFecha() {
