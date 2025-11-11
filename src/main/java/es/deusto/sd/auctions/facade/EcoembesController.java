@@ -9,7 +9,7 @@ import java.util.List;
 
 import es.deusto.sd.auctions.dto.ContenedorDTO;
 import es.deusto.sd.auctions.dto.EstadoDTO;
-import es.deusto.sd.auctions.dto.PlantaDeRecilajeDTO;
+import es.deusto.sd.auctions.dto.PlantaDeReciclajeDTO;
 import es.deusto.sd.auctions.entity.Estado;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -132,11 +132,11 @@ public class EcoembesController {
             }
     )
     @GetMapping("/pantas_de_reciclaje")
-    public ResponseEntity<List<PlantaDeRecilajeDTO>> get_plantas(){
+    public ResponseEntity<List<PlantaDeReciclajeDTO>> get_plantas(){
         try {
-            List<PlantaDeRecilajeDTO> dtos = new ArrayList<>();
+            List<PlantaDeReciclajeDTO> dtos = new ArrayList<>();
 
-            ecoembesService.getPlantas().values().forEach(planta -> dtos.add(new PlantaDeRecilajeDTO(planta.getId(), planta.getCapacidad_actual())));
+            ecoembesService.getPlantas().values().forEach(planta -> dtos.add(new PlantaDeReciclajeDTO(planta.getId(), planta.getCapacidad_actual())));
 
             return new ResponseEntity<>(dtos, HttpStatus.OK);
         } catch (RuntimeException e){

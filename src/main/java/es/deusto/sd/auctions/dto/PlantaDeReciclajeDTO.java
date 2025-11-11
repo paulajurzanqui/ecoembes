@@ -1,10 +1,10 @@
 package es.deusto.sd.auctions.dto;
 
-public class PlantaDeRecilajeDTO {
+public class PlantaDeReciclajeDTO {
     private long id;
     private double capacidad;
 
-    public PlantaDeRecilajeDTO(long id, double capacidad) {
+    public PlantaDeReciclajeDTO(long id, double capacidad) {
         this.id = id;
         this.capacidad = capacidad;
     }
