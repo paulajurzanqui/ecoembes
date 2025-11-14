@@ -66,4 +66,12 @@ public class AuthService {
     private static synchronized String generateToken() {
         return Long.toHexString(System.currentTimeMillis());
     }*/
+
+    public boolean valido(String token){
+        /*
+        Este metodo tendrá que devolver si el token existe y es válido, para que las consultas
+        estén disponibles con este
+         */
+        return true;
+    }
 }

@@ -1,23 +1,30 @@
+/**
+ * Puede haber partes de código creadas con asistencia de la IA Claude Sonnet 4.5, estas están más
+ * que verificadas su correcto funcionamiento junto con un trabajo por parte de los desarrolladores para
+ * la comprensión de su funcionamiento
+ */
 package es.deusto.sd.auctions.facade;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import es.deusto.sd.auctions.dto.CamionRequestDTO;
 import es.deusto.sd.auctions.dto.ContenedorDTO;
 import es.deusto.sd.auctions.dto.EstadoDTO;
 import es.deusto.sd.auctions.dto.PlantaDeReciclajeDTO;
 import es.deusto.sd.auctions.entity.Estado;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import es.deusto.sd.auctions.service.EcoembesService;
 import es.deusto.sd.auctions.service.AuthService;
-import es.deusto.sd.auctions.service.CurrencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,17 +35,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 //Hay que cambiar el /auctions y el blique entero
 @RestController
 @RequestMapping("/ecoembes")
-@Tag(name = "Auctions Controller", description = "Operations related to categories, articles and bids")
+@Tag(name = "Auctions Controller", description = "Operaciones relacionadas con contenedores, plantas de reciclaje y camiones")
 public class EcoembesController {
 
 	private final EcoembesService ecoembesService;
 	private final AuthService authService;
-	private final CurrencyService currencyService;
 
-	public EcoembesController(EcoembesService ecoembesService, AuthService authService, CurrencyService currencyService) {
+	public EcoembesController(EcoembesService ecoembesService, AuthService authService) {
 		this.ecoembesService = ecoembesService;
 		this.authService = authService;
-		this.currencyService = currencyService;
 	}
 
     //Get estado de los contenedores por entre fechas
@@ -59,8 +64,14 @@ public class EcoembesController {
             @Parameter(name = "fecha_inicio", description = "fecha de inicio de los estados", required = true, example = "01-01-2025")
             @PathVariable("fecha_inicio") String fecha_inicio,
             @Parameter(name = "fecha_fin", description = "fecha de fin de los estados", required = true, example = "04-01-2025")
-            @PathVariable("fecha_fin") String fecha_fin){
+            @PathVariable("fecha_fin") String fecha_fin,
+            @Parameter(description = "Token de autenticación del usuario", required = true, example = "abc123xyz")
+            @RequestParam (name = "token") String token_usuario){
             try {
+                if(!authService.valido(token_usuario)){
+                    return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+                }
+
                 String decoded_id_contenedor = URLDecoder.decode(contenedor, StandardCharsets.UTF_8);
                 long id = Long.parseLong(decoded_id_contenedor);
 
@@ -103,8 +114,13 @@ public class EcoembesController {
             }
     )
     @GetMapping("/contenedores")
-    public ResponseEntity<List<ContenedorDTO>> get_contenedores(){
+    public ResponseEntity<List<ContenedorDTO>> get_contenedores(
+            @Parameter(description = "Token de autenticación del usuario", required = true, example = "abc123xyz")
+            @RequestParam (name = "token") String token_usuario){
         try {
+            if(!authService.valido(token_usuario)){
+                return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+            }
 
             List<ContenedorDTO> dtos = new ArrayList<>();
 
@@ -132,8 +148,14 @@ public class EcoembesController {
             }
     )
     @GetMapping("/pantas_de_reciclaje")
-    public ResponseEntity<List<PlantaDeReciclajeDTO>> get_plantas(){
+    public ResponseEntity<List<PlantaDeReciclajeDTO>> get_plantas(
+            @Parameter(description = "Token de autenticación del usuario", required = true, example = "abc123xyz")
+            @RequestParam (name = "token") String token_usuario){
         try {
+            if(!authService.valido(token_usuario)){
+                return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+            }
+
             List<PlantaDeReciclajeDTO> dtos = new ArrayList<>();
 
             ecoembesService.getPlantas().values().forEach(planta -> dtos.add(new PlantaDeReciclajeDTO(planta.getId(), planta.getCapacidad_actual())));
@@ -150,11 +172,11 @@ public class EcoembesController {
 
     //Get capacidad de una planta en una fecha dada
     @Operation(
-            summary = "Get estado de los contenedores en una zona determinada",
-            description = "Devuelve el estado de los contenedores en una zona determinada",
+            summary = "Get capacidad de una planta en una fecha determinada",
+            description = "Devuelve la capacidad de una planta en una fecha determinada",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "OK: lista de los estados devuleto exitosamente"),
-                    @ApiResponse(responseCode = "204", description = "No Content: Zona inexistente"),
+                    @ApiResponse(responseCode = "200", description = "OK:capacidad devuelta exitosamente"),
+                    @ApiResponse(responseCode = "204", description = "No Content: planta inexistente"),
                     @ApiResponse(responseCode = "500", description = "Internal server error")
             }
     )
@@ -163,8 +185,13 @@ public class EcoembesController {
             @Parameter(name = "id_planta", description = "id de la planta", required = true, example = "00001")
             @PathVariable("id_planta") String planta,
             @Parameter(name = "fecha", description = "fecha de la que quiero la capacidad ", required = true, example = "01-01-2025")
-            @PathVariable("fecha") String fecha){
+            @PathVariable("fecha") String fecha,
+            @Parameter(description = "Token de autenticación del usuario", required = true, example = "abc123xyz")
+            @RequestParam (name = "token") String token_usuario){
         try {
+            if(!authService.valido(token_usuario)){
+                return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+            }
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
             sdf.setLenient(false);
@@ -186,16 +213,46 @@ public class EcoembesController {
             summary = "Asigna a una planta contenedores sin superar su capacidad",
             description = "Asigna a una planta contenedores que pueden ir para no superar la capadicad total de esta, creando de forma significativa un camión",
             responses = {
-                    @ApiResponse(responseCode = "204", description = "No Content: Contenedores asignados correctamente"),
+                    @ApiResponse(responseCode = "204", description = "No Content: Planta de reciclaje no encontrada"),
                     @ApiResponse(responseCode = "400", description = "Bad Request"),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized: No puedes actualizar datos"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized: No puedes crear esto"),
                     @ApiResponse(responseCode = "404", description = "Not Found: Planta no encontrada"),
                     @ApiResponse(responseCode = "409", description = "Conflict: La planta ya está llena"),
                     @ApiResponse(responseCode = "500", description = "Internal server error")
             })
-    @PostMapping("")
-    public ResponseEntity<Object> post_contenedores_plantas(){
-        return null;
-    }
+    @PostMapping("/plantas/{id_planta}/camiones_nuevo")
+    public ResponseEntity<Object> post_contenedores_plantas(
+            @Parameter(description = "ID de la planta de reciclaje", required = true, example = "1")
+            @PathVariable("id_planta") Long idPlanta,
 
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Datos del camión: fecha y lista de contenedores",
+                    required = true
+            )
+            @RequestBody @Valid CamionRequestDTO camionDTO,
+            @Parameter(description = "Token de autenticación del usuario", required = true, example = "abc123xyz")
+            @RequestParam (name = "token") String token_usuario){
+        try {
+            if(!authService.valido(token_usuario)){
+                return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body("Este usuario no tiene permitido realizar este tipo de consultas.");
+            }
+
+            ecoembesService.crear_camion(camionDTO, idPlanta);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body("Camión creado exitosamente con " + camionDTO.getContenedores().size() + " contenedores");
+
+        } catch (IllegalArgumentException e) {
+            System.err.println("✗ ERROR de validación: " + e.getMessage());
+            return ResponseEntity
+                    .badRequest()
+                    .body("Error de validación: " + e.getMessage());
+
+        } catch (Exception e) {
+            System.err.println("✗ ERROR: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al crear el camión: " + e.getMessage());
+        }
+    }
 }

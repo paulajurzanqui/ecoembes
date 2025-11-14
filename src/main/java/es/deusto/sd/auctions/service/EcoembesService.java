@@ -1,5 +1,7 @@
 package es.deusto.sd.auctions.service;
 
+import es.deusto.sd.auctions.dto.CamionRequestDTO;
+import es.deusto.sd.auctions.entity.Camion;
 import es.deusto.sd.auctions.entity.Contenedor;
 import es.deusto.sd.auctions.entity.Estado;
 import es.deusto.sd.auctions.entity.PlantaDeReciclaje;
@@ -12,6 +14,7 @@ import java.util.*;
 public class EcoembesService {
     private HashMap<Long, Contenedor> contenedores;
     private HashMap<Long, PlantaDeReciclaje> plantas;
+    private HashMap<Long, List<Camion>> camiones; //El long es el id de una planta de reciclaje, y luego una lista de camiones qué van a ella.
 
     public HashMap<Long, Contenedor> getContenedores() {
         return contenedores;
@@ -36,6 +39,7 @@ public class EcoembesService {
     public EcoembesService() {
         //this.contenedores = contenedores;
         //this.estados = estados;
+        //this.camiones = camiones;
         HashMap<Date, Estado>estados = new HashMap<>();
         estados.put(new Date(125, 0, 01),new Estado(new Date(125, 0, 01), 00.10));
         estados.put(new Date(125, 0, 02),new Estado(new Date(125, 0, 02), 00.12));
@@ -58,6 +62,7 @@ public class EcoembesService {
 
         plantas.get(1L).setHistorico(historico);
         plantas.get(1L).actualizar_capacidad(89, new Date(125,00,03));
+        this.camiones = new HashMap<>();
     }
 
     //Get estado de los contenedores entre fechas
@@ -85,5 +90,27 @@ public class EcoembesService {
     //Get estado de una planta en una fecha determinada
     public double capacidad_planta_fecha(PlantaDeReciclaje planta, Date fecha){
         return planta.getHistorico().get(fecha);
+    }
+
+    //Post crear un camión
+    public void crear_camion(CamionRequestDTO dto, long id_planta){
+        /**
+         * Con este metodo podemos añadir un camión, estos están organizados en un hashMap que tiene como clave las plantas de reciclaje,
+         * y como valor un arraylist de todos los camiones que van a esta. Los camiones tienen dentro un array con todos los ids de los
+         * contenedores que conteienen, además de un id de la planta y una fecha que indican cuando y donde van.
+         */
+
+        if(!plantas.containsKey(id_planta)){
+            //Error de que no se puede asignar a una planta que no existe
+        }
+
+        Camion camion = new Camion(dto.getContenedores(), id_planta, dto.getFecha());
+
+        if (camiones.containsKey(id_planta)){
+            camiones.get(id_planta).add(camion);
+        }else{
+            camiones.put(id_planta, new ArrayList<>());
+            camiones.get(id_planta).add(camion);
+        }
     }
 }
