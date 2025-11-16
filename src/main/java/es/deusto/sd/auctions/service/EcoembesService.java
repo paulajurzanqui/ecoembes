@@ -1,6 +1,6 @@
 package es.deusto.sd.auctions.service;
 
-import es.deusto.sd.auctions.dto.CamionRequestDTO;
+//import es.deusto.sd.auctions.dto.CamionRequestDTO;
 import es.deusto.sd.auctions.entity.Camion;
 import es.deusto.sd.auctions.entity.Contenedor;
 import es.deusto.sd.auctions.entity.Estado;
@@ -93,24 +93,25 @@ public class EcoembesService {
     }
 
     //Post crear un camión
-    public void crear_camion(CamionRequestDTO dto, long id_planta){
+//    public void crear_camion(CamionRequestDTO dto, long id_planta){
         /**
          * Con este metodo podemos añadir un camión, estos están organizados en un hashMap que tiene como clave las plantas de reciclaje,
          * y como valor un arraylist de todos los camiones que van a esta. Los camiones tienen dentro un array con todos los ids de los
          * contenedores que conteienen, además de un id de la planta y una fecha que indican cuando y donde van.
          */
 
-        if(!plantas.containsKey(id_planta)){
+//        if(!plantas.containsKey(id_planta)){
             //Error de que no se puede asignar a una planta que no existe
-        }
+//        }
 
-        Camion camion = new Camion(dto.getContenedores(), id_planta, dto.getFecha());
+//        Camion camion = new Camion(dto.getContenedores(), id_planta, dto.getFecha());
 
-        if (camiones.containsKey(id_planta)){
-            camiones.get(id_planta).add(camion);
-        }else{
-            camiones.put(id_planta, new ArrayList<>());
-            camiones.get(id_planta).add(camion);
-        }
-    }
+//        if (camiones.containsKey(id_planta)){
+//            camiones.get(id_planta).add(camion);
+//        }else{
+//            camiones.put(id_planta, new ArrayList<>());
+//            camiones.get(id_planta).add(camion);
+//        }
+//    }
+
 }
