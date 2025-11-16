@@ -1,85 +1,114 @@
 package es.deusto.sd.auctions.entity;
 
+import java.util.Objects;
+
 public class Personal {
-	private Long id;
-    private String email; 
-    private String passwordHash; 
-    private String nombre;
-    private String apellido;
-    private String rol;
-    
-	public Personal(Long id, String email, String passwordHash, String nombre, String apellido, String rol) {
-		super();
-		this.id = id;
+	private String email;
+	private String contrasena;
+	
+	// Token de sesión activa (timestamp del login)
+	private Long activeToken;
+	
+	// Constructor sin parámetros
+	public Personal() { }
+	
+	// Constructor con parámetros (sin token - se genera al hacer login)
+	public Personal(String email, String contrasena) {
 		this.email = email;
-		this.passwordHash = passwordHash;
-		this.nombre = nombre;
-		this.apellido = apellido;
-		this.rol = rol;
+		this.contrasena = contrasena;
+		this.activeToken = null; // Sin sesión activa inicialmente
 	}
 	
-	public Personal() {
-		super();
-		this.id = null;
-		this.email = null;
-		this.passwordHash = null;
-		this.nombre = null;
-		this.apellido = null;
-		this.rol = null;
+	/**
+	 * Verifica si la contraseña proporcionada coincide con la del usuario.
+	 * @param password Contraseña a verificar
+	 * @return true si la contraseña es correcta
+	 */
+	public boolean checkPassword(String password) {
+		return this.contrasena != null && this.contrasena.equals(password);
 	}
-
-	public Long getId() {
-		return id;
+	
+	/**
+	 * Genera un nuevo token de sesión basado en el timestamp actual.
+	 * @return El token generado (timestamp en milisegundos)
+	 */
+	public Long generateToken() {
+		this.activeToken = System.currentTimeMillis();
+		return this.activeToken;
 	}
-
-	public void setId(Long id) {
-		this.id = id;
+	
+	/**
+	 * Verifica si un token proporcionado es válido para este usuario.
+	 * @param token Token a validar
+	 * @return true si el token coincide con el token activo del usuario
+	 */
+	public boolean isValidToken(Long token) {
+		return this.activeToken != null && this.activeToken.equals(token);
 	}
-
+	
+	/**
+	 * Invalida el token actual (logout).
+	 */
+	public void invalidateToken() {
+		this.activeToken = null;
+	}
+	
+	/**
+	 * Verifica si el usuario tiene una sesión activa.
+	 * @return true si existe un token activo
+	 */
+	public boolean hasActiveSession() {
+		return this.activeToken != null;
+	}
+	
+	// Getters y Setters
 	public String getEmail() {
 		return email;
 	}
-
+	
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
-	public String getPasswordHash() {
-		return passwordHash;
+	
+	public String getContrasena() {
+		return contrasena;
 	}
-
-	public void setPasswordHash(String passwordHash) {
-		this.passwordHash = passwordHash;
+	
+	public void setContrasena(String contrasena) {
+		this.contrasena = contrasena;
 	}
-
-	public String getNombre() {
-		return nombre;
+	
+	public Long getActiveToken() {
+		return activeToken;
 	}
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	
+	public void setActiveToken(Long activeToken) {
+		this.activeToken = activeToken;
 	}
-
-	public String getApellido() {
-		return apellido;
+	
+	// hashCode y equals (basados en email como identificador único)
+	@Override
+	public int hashCode() {
+		return Objects.hash(email);
 	}
-
-	public void setApellido(String apellido) {
-		this.apellido = apellido;
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Personal other = (Personal) obj;
+		return Objects.equals(email, other.email);
 	}
-
-	public String getRol() {
-		return rol;
-	}
-
-	public void setRol(String rol) {
-		this.rol = rol;
-	}
-
+	
 	@Override
 	public String toString() {
-		return "Personal [id=" + id + ", email=" + email + ", passwordHash=" + passwordHash + ", nombre=" + nombre
-				+ ", apellido=" + apellido + ", rol=" + rol + "]";
+		return "Personal{" +
+				"email='" + email + '\'' +
+				", hasActiveSession=" + hasActiveSession() +
+				'}';
 	}
-	    
 }
