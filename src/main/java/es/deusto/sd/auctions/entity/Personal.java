@@ -7,7 +7,7 @@ public class Personal {
 	private String contrasena;
 	
 	// Token de sesión activa (timestamp del login)
-	private Long activeToken;
+	private String activeToken;
 	
 	// Constructor sin parámetros
 	public Personal() { }
@@ -29,20 +29,11 @@ public class Personal {
 	}
 	
 	/**
-	 * Genera un nuevo token de sesión basado en el timestamp actual.
-	 * @return El token generado (timestamp en milisegundos)
-	 */
-	public Long generateToken() {
-		this.activeToken = System.currentTimeMillis();
-		return this.activeToken;
-	}
-	
-	/**
 	 * Verifica si un token proporcionado es válido para este usuario.
 	 * @param token Token a validar
 	 * @return true si el token coincide con el token activo del usuario
 	 */
-	public boolean isValidToken(Long token) {
+	public boolean isValidToken(String token) {
 		return this.activeToken != null && this.activeToken.equals(token);
 	}
 	
@@ -78,11 +69,11 @@ public class Personal {
 		this.contrasena = contrasena;
 	}
 	
-	public Long getActiveToken() {
+	public String getActiveToken() {
 		return activeToken;
 	}
 	
-	public void setActiveToken(Long activeToken) {
+	public void setActiveToken(String activeToken) {
 		this.activeToken = activeToken;
 	}
 	
