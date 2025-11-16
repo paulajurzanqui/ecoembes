@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import es.deusto.sd.auctions.dto.CamionRequestDTO;
 // import es.deusto.sd.auctions.dto.CamionRequestDTO;
 import es.deusto.sd.auctions.dto.ContenedorDTO;
 import es.deusto.sd.auctions.dto.EstadoDTO;
@@ -229,7 +230,7 @@ public class EcoembesController {
                     description = "Datos del camión: fecha y lista de contenedores",
                     required = true
             )
-//            @RequestBody @Valid CamionRequestDTO camionDTO,
+            @RequestBody @Valid CamionRequestDTO camionDTO,
             @Parameter(description = "Token de autenticación del usuario", required = true, example = "abc123xyz")
             @RequestParam (name = "token") String token_usuario){
         try {
@@ -237,7 +238,7 @@ public class EcoembesController {
                 return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body("Este usuario no tiene permitido realizar este tipo de consultas.");
             }
 
-            //ecoembesService.crear_camion(camionDTO, idPlanta);
+            ecoembesService.crear_camion(camionDTO, idPlanta);
 
             return ResponseEntity.status(HttpStatus.CREATED).body("Camión creado exitosamente con " /*+ camionDTO.getContenedores().size()*/ + " contenedores");
 
