@@ -5,10 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+
 /**
  * Servicio de autenticación que mantiene el estado del servidor.
  * Gestiona tokens activos y usuarios autenticados en memoria.
  */
+@Service
 public class AuthService {
 	
 	// Repositorio de usuarios (simulación de base de datos)
