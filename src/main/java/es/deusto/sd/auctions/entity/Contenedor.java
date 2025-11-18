@@ -1,41 +1,27 @@
 package es.deusto.sd.auctions.entity;
 
-import java.time.LocalTime;
+import jakarta.persistence.*;
+
 import java.util.*;
 
+@Entity
 public class Contenedor {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private HashMap<Date, Estado> estados;
-    private Estado ultimo;
 
-    public Contenedor(long id, HashMap<Date, Estado> estados) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Estado estados;
+
+
+    public Contenedor(long id) {
         this.id = id;
-        this.estados = estados;
-        ultimo = null;
     }
 
-    public Estado getUltimo() {
-        return ultimo;
-    }
-
-    public void setUltimo(Estado ultimo) {
-        this.ultimo = ultimo;
-    }
-
-    public HashMap<Date, Estado> getEstados() {
-        return estados;
-    }
-
-    public void setEstados(HashMap<Date, Estado> estados) {
-        this.estados = estados;
-    }
+    public Contenedor(){}
 
     public long getId() {
         return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     @Override
@@ -55,13 +41,5 @@ public class Contenedor {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    public void anadir_estado(Estado estado){
-        /**
-         * Este metodo añade al contenedor un estado a su histórico además de actualizar el último
-         */
-        estados.put(estado.getFecha(), estado);
-        ultimo = estado;
     }
 }

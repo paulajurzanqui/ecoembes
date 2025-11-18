@@ -1,32 +1,47 @@
 package es.deusto.sd.auctions.entity;
 
+import jakarta.persistence.*;
+
 import java.util.Date;
 import java.util.List;
 
+@Entity
 public class Camion {
-    List<Long> id_contenedores;
-    long id_planta;
-    Date fecha;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public List<Long> getId_contenedores() {
-        return id_contenedores;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "planta_id")
+    private PlantaDeReciclaje planta;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "camion_contenedor",
+            joinColumns = @JoinColumn(name = "camion_id"),
+            inverseJoinColumns = @JoinColumn(name = "contenedor_id")
+    )
+    private List<Contenedor> contenedores;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "fecha", nullable = false)
+    private Date fecha;
+
+    public List<Contenedor> getContenedores() {
+        return contenedores;
     }
 
-    public void setId_contenedores(List<Long> id_contenedores) {
-        this.id_contenedores = id_contenedores;
+    public void setContenedores(List<Contenedor> contenedores) {
+        this.contenedores = contenedores;
     }
 
-    public long getId_planta() {
-        return id_planta;
-    }
+    public void setPlanta(PlantaDeReciclaje planta){this.planta = planta;}
 
-    public void setId_planta(long id_planta) {
-        this.id_planta = id_planta;
-    }
+    public Camion(){}
 
-    public Camion(List<Long> id_contenedores, long id_planta, Date fecha) {
-        this.id_contenedores = id_contenedores;
-        this.id_planta = id_planta;
+    public Camion(List<Contenedor> contenedores, PlantaDeReciclaje planta, Date fecha) {
+        this.contenedores = contenedores;
+        this.planta = planta;
         this.fecha = fecha;
     }
 }

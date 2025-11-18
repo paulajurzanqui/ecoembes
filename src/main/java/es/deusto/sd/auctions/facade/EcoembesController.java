@@ -238,7 +238,7 @@ public class EcoembesController {
                 return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body("Este usuario no tiene permitido realizar este tipo de consultas.");
             }
 
-            ecoembesService.crear_camion(camionDTO, idPlanta);
+            ecoembesService.crear_camion(camionDTO, ecoembesService.getPlantas().get(idPlanta));
 
             return ResponseEntity.status(HttpStatus.CREATED).body("Camión creado exitosamente con " /*+ camionDTO.getContenedores().size()*/ + " contenedores");
 

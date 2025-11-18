@@ -1,11 +1,22 @@
 package es.deusto.sd.auctions.entity;
 
+import jakarta.persistence.*;
+
 import java.util.Date;
 import java.util.Objects;
 
+@Entity
 public class Estado {
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 30)
     private tipo llenado;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "fecha", nullable = false)
     private Date fecha;
+
+    @Column(name = "cantidad", nullable = false)
     private double cantidad; //En toneladas
 
     public enum tipo{
@@ -23,6 +34,8 @@ public class Estado {
         else if((cantidad >= 0.81) && (cantidad <= 0.89)) llenado = tipo.Naranja;
         else llenado = tipo.Rojo;
     }
+
+    public Estado(){}
 
     public tipo getLlenado() {
         return llenado;
