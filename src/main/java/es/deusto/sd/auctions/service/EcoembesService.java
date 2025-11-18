@@ -1,6 +1,6 @@
 package es.deusto.sd.auctions.service;
 
-import es.deusto.sd.auctions.dao.CamionRepository;
+import es.deusto.sd.auctions.dao.*;
 import es.deusto.sd.auctions.dto.CamionRequestDTO;
 //import es.deusto.sd.auctions.dto.CamionRequestDTO;
 import es.deusto.sd.auctions.entity.Camion;
@@ -15,38 +15,29 @@ import java.util.*;
 
 @Service
 public class EcoembesService {
-    private HashMap<Long, Contenedor> contenedores;
-    private HashMap<Long, PlantaDeReciclaje> plantas;
-    private HashMap<Long, List<Camion>> camiones; //El long es el id de una planta de reciclaje, y luego una lista de camiones qué van a ella.
-
-    // NUEVO: Añade los repositories
     private final CamionRepository camionRepository;
+    private final ContenedorRepository contenedorRepository;
+    private final PlantaDeReciclajeRepository plantasRepository;
+    private final EstadoRepository estadosRepository;
+    private final RegistroResiduosPlantaRepository registrosResiduosPlantaRepository;
 
 
-    public HashMap<Long, Contenedor> getContenedores() {
-        return contenedores;
-    }
 
-    public void setContenedores(HashMap<Long, Contenedor> contenedores) {
-        this.contenedores = contenedores;
-    }
 
-    public EcoembesService(HashMap<Long, Contenedor> contenedores, CamionRepository camionRepository) {
-        this.contenedores = contenedores;
+    public EcoembesService(HashMap<Long, Contenedor> contenedores, CamionRepository camionRepository, ContenedorRepository contenedorRepository, PlantaDeReciclajeRepository plantasRepository, EstadoRepository estadosRepository, RegistroResiduosPlantaRepository registrosResiduosPlantaRepository) {
+        this.contenedorRepository = contenedorRepository;
         this.camionRepository = camionRepository;
+        this.plantasRepository = plantasRepository;
+        this.estadosRepository = estadosRepository;
+        this.registrosResiduosPlantaRepository = registrosResiduosPlantaRepository;
     }
 
-    public HashMap<Long, PlantaDeReciclaje> getPlantas() {
-        return plantas;
-    }
-
-    public void setPlantas(HashMap<Long, PlantaDeReciclaje> plantas) {
-        this.plantas = plantas;
-    }
-
-    public EcoembesService(CamionRepository camionRepository) {
+    public EcoembesService(CamionRepository camionRepository, ContenedorRepository contenedorRepository, PlantaDeReciclajeRepository plantasRepository, EstadoRepository estadosRepository, RegistroResiduosPlantaRepository registrosResiduosPlantaRepository) {
         this.camionRepository = camionRepository;
-
+        this.contenedorRepository = contenedorRepository;
+        this.plantasRepository = plantasRepository;
+        this.estadosRepository = estadosRepository;
+        this.registrosResiduosPlantaRepository = registrosResiduosPlantaRepository;
     }
 
     //Get estado de los contenedores entre fechas
@@ -60,7 +51,8 @@ public class EcoembesService {
 
     //Get estado de una planta en una fecha determinada
     public double capacidad_planta_fecha(PlantaDeReciclaje planta, Date fecha){
-        return planta.getHistorico().get(fecha);
+    //TODO
+        return 0;
     }
 
     //Post crear un camión
