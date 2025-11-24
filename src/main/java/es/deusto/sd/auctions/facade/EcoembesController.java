@@ -32,7 +32,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 
-//TODO
 //Hay que cambiar el /auctions y el blique entero
 @RestController
 @RequestMapping("/ecoembes")
@@ -69,30 +68,22 @@ public class EcoembesController {
             @Parameter(description = "Token de autenticación del usuario", required = true, example = "abc123xyz")
             @RequestParam (name = "token") String token_usuario){
             try {
-                if(!authService.valido(token_usuario)){
+                /*if(!authService.valido(token_usuario)){
                     return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
-                }
+                }*/
 
                 String decoded_id_contenedor = URLDecoder.decode(contenedor, StandardCharsets.UTF_8);
                 long id = Long.parseLong(decoded_id_contenedor);
 
-                if(ecoembesService.getContenedores().get(id) == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
                 SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
                 sdf.setLenient(false);
 
-                Date fecha_inicio_format = sdf.parse(fecha_inicio);
 
+                Date fecha_inicio_format = sdf.parse(fecha_inicio);
                 Date fecha_fin_format = sdf.parse(fecha_fin);
 
-                List<Estado> estados =ecoembesService.consulta_entre_fechas
-                        (ecoembesService.getContenedores().get(id), fecha_inicio_format, fecha_fin_format);
-                if (estados.isEmpty()) {
-                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-                }
 
-                List<EstadoDTO> dtos = new ArrayList<>();
-                estados.forEach(estado -> {dtos.add(new EstadoDTO(estado.getCantidad(), estado.getFecha()));});
+                List<EstadoDTO> dtos = ecoembesService.consulta_entre_fechas(id, fecha_inicio_format, fecha_fin_format);
 
                 return new ResponseEntity<>(dtos, HttpStatus.OK);
             } catch (RuntimeException e){
@@ -119,16 +110,10 @@ public class EcoembesController {
             @Parameter(description = "Token de autenticación del usuario", required = true, example = "abc123xyz")
             @RequestParam (name = "token") String token_usuario){
         try {
-            if(!authService.valido(token_usuario)){
+            /*if(!authService.valido(token_usuario)){
                 return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
-            }
-
-            List<ContenedorDTO> dtos = new ArrayList<>();
-
-            ecoembesService.getContenedores().values().forEach(contenedor -> dtos.add(new ContenedorDTO(contenedor.getId(),
-                    new EstadoDTO(contenedor.getUltimo().getCantidad(), contenedor.getUltimo().getFecha()))));
-
-            return new ResponseEntity<>(dtos, HttpStatus.OK);
+            }*/
+            return new ResponseEntity<>(ecoembesService.getContenedores(), HttpStatus.OK);
         } catch (RuntimeException e){
             System.out.println(e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -153,15 +138,11 @@ public class EcoembesController {
             @Parameter(description = "Token de autenticación del usuario", required = true, example = "abc123xyz")
             @RequestParam (name = "token") String token_usuario){
         try {
-            if(!authService.valido(token_usuario)){
+            /*if(!authService.valido(token_usuario)){
                 return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
-            }
+            }*/
 
-            List<PlantaDeReciclajeDTO> dtos = new ArrayList<>();
-
-            ecoembesService.getPlantas().values().forEach(planta -> dtos.add(new PlantaDeReciclajeDTO(planta.getId(), planta.getCapacidad_actual())));
-
-            return new ResponseEntity<>(dtos, HttpStatus.OK);
+            return new ResponseEntity<>(ecoembesService.getPlantas(), HttpStatus.OK);
         } catch (RuntimeException e){
             System.out.println(e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -184,24 +165,21 @@ public class EcoembesController {
     @GetMapping("/plantas/{id_planta}/{fecha}")
     public ResponseEntity<Double> get_capacidad_planta_fecha(
             @Parameter(name = "id_planta", description = "id de la planta", required = true, example = "00001")
-            @PathVariable("id_planta") String planta,
+            @PathVariable("id_planta") long planta,
             @Parameter(name = "fecha", description = "fecha de la que quiero la capacidad ", required = true, example = "01-01-2025")
             @PathVariable("fecha") String fecha,
             @Parameter(description = "Token de autenticación del usuario", required = true, example = "abc123xyz")
             @RequestParam (name = "token") String token_usuario){
         try {
-            if(!authService.valido(token_usuario)){
+            /*if(!authService.valido(token_usuario)){
                 return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
-            }
+            }*/
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
             sdf.setLenient(false);
             Date fecha_format = sdf.parse(fecha);
 
-
-            double capacidad = ecoembesService.capacidad_planta_fecha(ecoembesService.getPlantas().get(Long.parseLong(planta)), fecha_format);
-
-            return new ResponseEntity<>(capacidad, HttpStatus.OK);
+            return new ResponseEntity<>(ecoembesService.capacidad_planta_fecha(planta, fecha_format), HttpStatus.OK);
         } catch (RuntimeException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e){
@@ -234,11 +212,11 @@ public class EcoembesController {
             @Parameter(description = "Token de autenticación del usuario", required = true, example = "abc123xyz")
             @RequestParam (name = "token") String token_usuario){
         try {
-            if(!authService.valido(token_usuario)){
+            /*if(!authService.valido(token_usuario)){
                 return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body("Este usuario no tiene permitido realizar este tipo de consultas.");
-            }
+            }*/
 
-            ecoembesService.crear_camion(camionDTO, ecoembesService.getPlantas().get(idPlanta));
+            ecoembesService.crear_camion(camionDTO, idPlanta);
 
             return ResponseEntity.status(HttpStatus.CREATED).body("Camión creado exitosamente con " /*+ camionDTO.getContenedores().size()*/ + " contenedores");
 

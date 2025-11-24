@@ -7,6 +7,9 @@ import java.util.Objects;
 
 @Entity
 public class Estado {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false, length = 30)
@@ -17,25 +20,45 @@ public class Estado {
     private Date fecha;
 
     @Column(name = "cantidad", nullable = false)
-    private double cantidad; //En toneladas
+    private double cantidad;
 
-    public enum tipo{
-        Verde, //0% - 80%
-        Naranja, //80%-100%
-        Rojo; //100%
+    // ⭐ ESTO FALTA - La FK hacia Contenedor
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "contenedor_id", nullable = false)
+    private Contenedor contenedor;
+
+    public enum tipo {
+        Verde,   // 0% - 80%
+        Naranja, // 80%-100%
+        Rojo     // 100%
     }
 
-    public Estado( Date fecha, double cantidad) {
-        this.llenado = llenado;
+    // Constructor actualizado
+    public Estado(Date fecha, double cantidad, Contenedor contenedor) {
         this.fecha = fecha;
         this.cantidad = cantidad;
+        this.contenedor = contenedor;
 
-        if((0 <= cantidad) && (cantidad <= 0.80)) llenado = tipo.Verde;
-        else if((cantidad >= 0.81) && (cantidad <= 0.89)) llenado = tipo.Naranja;
-        else llenado = tipo.Rojo;
+        // Calcular el tipo según la cantidad
+        if (cantidad >= 0 && cantidad <= 0.80) {
+            this.llenado = tipo.Verde;
+        } else if (cantidad > 0.80 && cantidad < 1.0) {
+            this.llenado = tipo.Naranja;
+        } else {
+            this.llenado = tipo.Rojo;
+        }
     }
 
-    public Estado(){}
+    public Estado() {}
+
+    // Getters y setters
+    public Contenedor getContenedor() {
+        return contenedor;
+    }
+
+    public void setContenedor(Contenedor contenedor) {
+        this.contenedor = contenedor;
+    }
 
     public tipo getLlenado() {
         return llenado;

@@ -10,8 +10,8 @@ public class Contenedor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Estado estados;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Estado estado;
 
 
     public Contenedor(long id) {
@@ -23,6 +23,10 @@ public class Contenedor {
     public long getId() {
         return id;
     }
+
+    public Estado getEstado(){return estado;}
+
+    public void setEstado(Estado e){this.estado = e;}
 
     @Override
     public String toString() {
