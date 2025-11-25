@@ -8,17 +8,14 @@ package es.deusto.sd.auctions.facade;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.List;
 
 import es.deusto.sd.auctions.dto.CamionRequestDTO;
-// import es.deusto.sd.auctions.dto.CamionRequestDTO;
 import es.deusto.sd.auctions.dto.ContenedorDTO;
 import es.deusto.sd.auctions.dto.EstadoDTO;
 import es.deusto.sd.auctions.dto.PlantaDeReciclajeDTO;
-import es.deusto.sd.auctions.entity.Estado;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

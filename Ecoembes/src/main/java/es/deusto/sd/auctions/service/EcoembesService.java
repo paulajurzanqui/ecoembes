@@ -2,7 +2,6 @@ package es.deusto.sd.auctions.service;
 
 import es.deusto.sd.auctions.dao.*;
 import es.deusto.sd.auctions.dto.CamionRequestDTO;
-//import es.deusto.sd.auctions.dto.CamionRequestDTO;
 import es.deusto.sd.auctions.dto.ContenedorDTO;
 import es.deusto.sd.auctions.dto.EstadoDTO;
 import es.deusto.sd.auctions.dto.PlantaDeReciclajeDTO;
